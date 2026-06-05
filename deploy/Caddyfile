@@ -1,0 +1,34 @@
+# Auto DCA — Caddy site config for workollab-02.
+# Caddy auto-provisions and renews HTTPS (Let's Encrypt). Static files only; no app server.
+#
+# Install into /etc/caddy/Caddyfile (or an import under /etc/caddy/sites.d/), then:
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+#
+# Replace the hostname with the real subdomain that points at this box (A/AAAA record).
+
+autodca.workollab.com {
+	root * /var/www/auto-dca
+	encode zstd gzip
+	file_server
+
+	# Single-page app: fall back to index.html for unknown paths.
+	try_files {path} /index.html
+
+	header {
+		Strict-Transport-Security "max-age=31536000;"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# the engine runs entirely client-side; no external calls needed
+	}
+
+	# Long-cache fingerprinted assets, never cache the HTML entry point.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	@html path /index.html /
+	header @html Cache-Control "no-cache"
+
+	log {
+		output file /var/log/caddy/auto-dca.log
+	}
+}

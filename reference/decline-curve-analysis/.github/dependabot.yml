@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    cooldown:
+      default-days: 7
+      semver-major-days: 15
+      semver-minor-days: 7
+      semver-patch-days: 3
+    groups:
+      pip:
+        applies-to: version-updates
+        patterns: ["*"]
+      pip-security:
+        applies-to: security-updates
+        patterns: ["*"]

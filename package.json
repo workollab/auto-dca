@@ -1,0 +1,14 @@
+{
+  "name": "auto-dca",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Auto DCA — browser-native decline-curve-analysis engine + demo. Rebuilt from scratch, validated against Equinor's reference.",
+  "workspaces": ["engine", "app"],
+  "scripts": {
+    "build:engine": "npm run build -w @workollab/auto-dca-engine",
+    "test:engine": "npm run test -w @workollab/auto-dca-engine",
+    "dev": "npm run dev -w app",
+    "build": "npm run build:engine && npm run build -w app"
+  },
+  "license": "MIT"
+}
