@@ -12,6 +12,12 @@ Auto DCA is a from-scratch TypeScript rebuild of Equinor's open
 rebuilt engine is validated numerically against the original Python: on real North Sea
 fields it reproduces Equinor's fitted curves to within **0.02 parts per million**.
 
+[![Auto DCA — the engine trying each Arps family and fine-tuning to the best fit](docs/assets/auto-dca-demo.gif)](https://autodca-demo.nrgnr.app)
+
+<sub>The engine tries each Arps family (exponential → harmonic → hyperbolic), fine-tunes the
+parameters, and settles on the model with the best cross-validated forecast — all in the
+browser. ([try it](https://autodca-demo.nrgnr.app))</sub>
+
 ## What it does
 
 - **Auto model selection** — fits Arps exponential, hyperbolic, and harmonic, then picks the
