@@ -4,7 +4,8 @@
 Arps fit, forecast, and EUR in seconds — the entire computation runs in your browser, so
 your production data never leaves your machine.
 
-> Live demo: _(deploys to workollab-02 — see `docs/DEPLOY.md`)_
+> **Live demo: [autodca-demo.nrgnr.app](https://autodca-demo.nrgnr.app)** — or self-host in
+> minutes ([`docs/DEPLOY.md`](docs/DEPLOY.md)).
 
 Auto DCA is a from-scratch TypeScript rebuild of Equinor's open
 [`decline-curve-analysis`](https://github.com/equinor/decline-curve-analysis) (MIT). The

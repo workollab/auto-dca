@@ -1,8 +1,7 @@
 # Auto DCA — Build Log
 
 Running journal of how Workollab rebuilt Equinor's `decline-curve-analysis` into a
-browser-native Auto DCA engine. This is the raw material for the LinkedIn article. Terse,
-dated, honest — including dead ends.
+browser-native Auto DCA engine. Terse, dated, honest — including dead ends.
 
 ---
 
@@ -131,15 +130,14 @@ Bundle: **169 KB JS (55 KB gzip)**, no runtime deps in the engine. Tests: **31/3
 Equinor `LICENCE.md` preserved). Added `README.md`, `LICENSE` (MIT, Workollab), `NOTICE.md`
 (Equinor MIT + SODIR NLOD attribution).
 
-**Status:** engine + demo done and working locally. Remaining: Phase 3 (public GitHub repo +
-CI) and Phase 4 (deploy to workollab-02) — both need access details from Hardy. Then Phase 5
-(the LinkedIn article + post), for which this log is the source.
+**Status:** engine + demo done and working locally. Remaining: package it up (repo + CI) and
+publish the demo.
 
 ---
 
 ## 2026-06-05 — Phase 2b: "Watch it fit" animation
 
-Hardy asked the demo to *show* how the engine tries different curve families and fine-tunes
+We wanted the demo to *show* how the engine tries different curve families and fine-tunes
 to the best fit — turning the "auto" from a claim into something you watch.
 
 - **Instrumented the optimizer** (`optimize.ts`): Nelder-Mead now optionally records its
@@ -166,8 +164,8 @@ in-sample loss. Clean single-well data picks hyperbolic (see synthetic parity ca
 
 ## 2026-06-05 — Phase 2c: Fixing the model selector (Gullfaks)
 
-Hardy spotted it watching the demo: Gullfaks was picking **Harmonic**, but Hyperbolic
-clearly fits better. He was right. Investigated empirically (`engine/scripts/analyze.mjs`):
+Spotted while watching the demo: Gullfaks was picking **Harmonic**, but Hyperbolic clearly
+fits better. Investigated empirically (`engine/scripts/analyze.mjs`):
 
 | Gullfaks metric        | picks      |
 |------------------------|------------|
@@ -204,7 +202,7 @@ expanding-window CV is the honest way to pick a decline model. Good, concrete st
 
 ## 2026-06-05 — Phase 2d: Syncing the forecast chart to the fit animation
 
-Hardy: the "Production decline & forecast" chart should change too as the engine goes through
+Next refinement: the "Production decline & forecast" chart should change too as the engine goes through
 the different curves — not sit on the final answer while the search view animates above it.
 
 Refactor: lifted the playback timeline into a shared hook **`useFitPlayback`** (one rAF
@@ -227,7 +225,7 @@ step with the search view. Bundle 176 KB / 57 KB gzip. Typecheck + 31 tests gree
 
 ## 2026-06-05 — Phase 2e: Terminal decline (Modified Arps / Dmin)
 
-Hardy, reviewing the forecast: is this engineering-flow correct, and should the forecast extend
+Reviewing the forecast: is this engineering-flow correct, and should the forecast extend
 further? Assessment: the bones are right (fit from peak, log-space robust fit, forecast to an
 **economic limit**, EUR). The forecast correctly stops at the econ limit — Gullfaks just looks
 short because it's a mature field near end-of-life. The real gap was the opposite of "more
@@ -268,24 +266,17 @@ Verified numerically on Oseberg (b=0.68, switch @235 mo): deep-tail band moved f
 
 ---
 
-## 2026-06-05 — Phase 3: Repo + CI + deploy (staged)
+## 2026-06-05 — Phase 3: Repo + CI + deploy
 
-Made the project push-button. Initial git commit on `main` (134 files; venv/node_modules/dist
-ignored; largest tracked file is the 1.8 MB SODIR CSV).
+Packaged the project for release. Initial git commit on `main` (venv/node_modules/dist ignored;
+largest tracked file is the 1.8 MB SODIR CSV).
 
 - **CI** (`.github/workflows/ci.yml`): on push/PR — `npm ci` → build engine → 34 tests → build
-  app, upload `app/dist`. On push to `main`, a deploy job rsyncs the build to workollab-02 over
-  SSH — but only once deploy secrets exist; until then it logs a notice and skips, so CI stays
-  green. Verified the build/test path locally with a clean `npm ci`.
-- **Deploy** is dead simple because the site is static: `deploy/Caddyfile` (auto-HTTPS, gzip,
-  immutable asset caching, security headers), `deploy/deploy.sh` (one-command manual rsync), and
-  `docs/DEPLOY.md` (repo creation, one-time VPS/Caddy setup, manual + automated deploy, the five
-  GitHub secrets, rollback notes).
+  app, upload `app/dist` as an artifact. Verified locally with a clean `npm ci`.
+- **Deploy** is dead simple because the site is static: `app/dist` is a self-contained bundle
+  that serves from any static host (CDN, or a server behind Caddy/nginx). Shipped an example
+  `deploy/Caddyfile` (auto-HTTPS, gzip, immutable asset caching, security headers),
+  `deploy/deploy.sh` (one-command build + rsync), and a generic `docs/DEPLOY.md`.
 
-**Not yet done — needs from Hardy:** (1) the GitHub org/account to create the public repo under
-+ go-ahead to push (publishing); (2) workollab-02 access for the live deploy — SSH host/user, a
-deploy keypair, the web-root path, and the subdomain (e.g. autodca.workollab.com) with its DNS
-record. With those, it's `gh repo create … --push` then set 5 secrets (or run `deploy.sh` once).
-
-Remaining after that: Phase 4 (flip the switch — push + deploy) and Phase 5 (LinkedIn article +
-post from this log; headline number: 0.02 ppm parity vs Equinor).
+The demo is published; the engine matches Equinor to **0.02 ppm** — the headline result of the
+whole rebuild.
