@@ -55,6 +55,41 @@ SSH_USER=user SSH_HOST=your-server DEPLOY_PATH=/var/www/auto-dca ./deploy/deploy
 # optional: SSH_PORT, SSH_KEY
 ```
 
+## Option C — Docker (container behind a reverse proxy)
+
+If you run a containerized stack, the included [`Dockerfile`](../Dockerfile) builds the static
+bundle and serves it with nginx, ready to sit behind any reverse proxy (Traefik, Caddy, nginx,
+an ingress controller, etc.).
+
+```
+docker build  ->  auto-dca:latest  ->  reverse proxy routes your host -> nginx (port 80)
+```
+
+- **`Dockerfile`** — multi-stage. Stage 1 (`node:22-alpine`) runs `npm ci && npm run build`
+  (engine + app → `app/dist`); stage 2 (`nginx:alpine`) serves it.
+- **[`deploy/nginx.conf`](../deploy/nginx.conf)** — `immutable` long-cache for `/assets/*`,
+  `no-cache` on the HTML entry, and `try_files … /index.html` SPA fallback.
+
+```bash
+docker build -t auto-dca:latest .
+docker run -d --name auto-dca -p 8080:80 auto-dca:latest   # then browse http://localhost:8080
+```
+
+In production, drop the published port and instead attach the container to your proxy's network
+so it routes by host. For example, with Traefik's Docker provider:
+
+```yaml
+services:
+  auto-dca:
+    image: auto-dca:latest
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.auto-dca.rule=Host(`auto-dca.example.com`)
+      - traefik.http.services.auto-dca.loadbalancer.server.port=80
+```
+
+The container serves plain HTTP on port 80; terminate TLS at the proxy (or its upstream CDN).
+
 ## Continuous integration
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) builds the engine, runs the test
